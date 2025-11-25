@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "compra_veiculo")
@@ -52,4 +53,7 @@ public class AnuncioVeiculo {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @OneToMany(mappedBy = "anuncio_veiculo")
+    private List<PedidoCompra> pedidoCompras;
 }

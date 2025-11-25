@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Table(name = "users")
@@ -50,4 +51,12 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AnuncioVeiculo> anuncioVeiculos;
+
+    @OneToMany(mappedBy = "user", cascade = {
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+            CascadeType.PERSIST,
+            CascadeType.REFRESH
+            }, fetch = FetchType.LAZY)
+    private List<PedidoCompra> pedidoCompras;
 }
