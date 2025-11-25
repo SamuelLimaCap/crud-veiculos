@@ -8,12 +8,15 @@ import com.support.compracarros.dto.res.UserResponse;
 import com.support.compracarros.entities.AccessToken;
 import com.support.compracarros.entities.RefreshToken;
 import com.support.compracarros.entities.User;
+import com.support.compracarros.entities.UserPermission;
 import com.support.compracarros.exceptions.APIAuthException;
 import com.support.compracarros.exceptions.BadCredentialsException;
 import com.support.compracarros.models.FieldErrors;
+import com.support.compracarros.models.UserPermissionEnum;
 import com.support.compracarros.repositories.AccessTokenRepository;
+import com.support.compracarros.repositories.PermissionRepository;
 import com.support.compracarros.repositories.RefreshTokenRepository;
-import com.support.compracarros.repositories.UserRespository;
+import com.support.compracarros.repositories.UserRepository;
 import com.support.compracarros.services.UserService;
 import com.support.compracarros.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -26,17 +29,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRespository userRespository;
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final AccessTokenRepository accessTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PermissionRepository permissionRepository;
 
     @Value("${app.refreshTokenExpSeconds}")
     private long refreshTokenExpirationSeconds;
@@ -55,7 +60,7 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        userRespository.findByEmail(createUserRequest.email()).ifPresent((user) -> {
+        userRepository.findByEmail(createUserRequest.email()).ifPresent((user) -> {
             throw new BadCredentialsException("email já existe",
                     FieldErrors.builder()
                             .add("email", "email já existe")
@@ -63,14 +68,20 @@ public class UserServiceImpl implements UserService {
             );
         });
 
+        var defaultPermissions = List.of(
+                permissionRepository.findByPermission(UserPermissionEnum.CLIENT),
+                permissionRepository.findByPermission(UserPermissionEnum.BUYER)
+        );
+
         var newUser = User.builder()
                 .username(createUserRequest.fullname())
                 .email(createUserRequest.email())
                 .password(passwordEncoder.encode(createUserRequest.password()))
                 .enabled(true)
+                .permissions(defaultPermissions)
                 .build();
 
-        userRespository.save(newUser);
+        userRepository.save(newUser);
     }
 
     @Override
@@ -97,6 +108,7 @@ public class UserServiceImpl implements UserService {
                 .expiresAt(Instant.now().plusSeconds(jwtExpirationSeconds))
                 .user(user)
                 .build();
+
         var refreshTokenEntity = RefreshToken.builder()
                 .user(user)
                 .expiresAt(Instant.now().plusSeconds(refreshTokenExpirationSeconds))
@@ -107,7 +119,11 @@ public class UserServiceImpl implements UserService {
 
         return new LoginResponse(
                 accessTokenString, refreshTokenEntity.getId().toString(),
-                new UserResponse(user.getUsername(), user.getEmail())
+                new UserResponse(
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getPermissions().stream().map(UserPermission::getPermission).toList()
+                )
         );
 
     }

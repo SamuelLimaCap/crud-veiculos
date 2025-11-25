@@ -7,7 +7,7 @@ public record PageSuccessResponse<T>(
         String message,
         List<T> content,
         PageDetails pageInfo
-) {
+) implements Result<T> {
     public record PageDetails(
             int pageNum,
             int size,
