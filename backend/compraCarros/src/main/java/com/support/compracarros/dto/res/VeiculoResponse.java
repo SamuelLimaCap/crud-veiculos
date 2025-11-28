@@ -6,6 +6,7 @@ public record VeiculoResponse(
         String marca,
         String modelo,
         Integer ano,
-        String cor
+        String cor,
+        String combustivel
 ) {
 }

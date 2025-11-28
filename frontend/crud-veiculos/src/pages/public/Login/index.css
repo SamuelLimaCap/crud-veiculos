@@ -1,1 +1,41 @@
+.container-login {
+    border: 1px solid black;
+    padding: 100px;
+    border-radius: 20px;
+}
 
+.form-login {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-login label {
+    width: 100%;
+    text-align: left;
+    padding-inline: 4px;
+}
+
+.form-login input[type="submit"] {
+    margin-top: 30px;
+}
+
+.input-group-show-password,
+.input-group-post-email {
+    padding-inline: 3px;
+    margin: 0 auto;
+}
+
+.error-input {
+    color: darkred;
+}
+
+@media (max-width: 768px) {
+    .container-login {
+        padding-inline: 20px;
+        padding-block: 100px;
+    }
+
+}

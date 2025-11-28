@@ -51,27 +51,30 @@ export default function Login() {
     }
 
     return <>
-        <div className={"container"}>
+        <div className={"container container-login"}>
             <div className={"row"}>
                 <div className={"col"}>
                     Aqui vai estar o anuncio
-
                 </div>
                 <div className={"col"}>
-                    Aqui vai estar as informações de login
 
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit)} className="form-login">
                         <div className="mb-3">
                             <label htmlFor="form-email" className="form-label">Email</label>
-                            <input type="email" className="form-control" id="form-email" placeholder="email@email.com"
-                                {...register("email", {
-                                    required: "E-mail é obrigatório",
-                                    pattern: {
-                                        value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
-                                        message: "E-mail inválido",
-                                    }
-                                })}
-                            />
+                            <div className="input-group">
+                                <input type="email" className="form-control" id="form-email" placeholder="email@email.com"
+                                    {...register("email", {
+                                        required: "E-mail é obrigatório",
+                                        pattern: {
+                                            value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
+                                            message: "E-mail inválido",
+                                        }
+                                    })}
+                                />
+                                <div className="input-group-post-email">
+                                    <span>@</span>
+                                </div>
+                            </div>
                             {errors.email && (
                                 <span className="formError">{errors.email.message}</span>
                             )}
@@ -97,6 +100,7 @@ export default function Login() {
                             )}
 
                             <input type="submit" value="logar" />
+
                         </div>
                     </form>
 

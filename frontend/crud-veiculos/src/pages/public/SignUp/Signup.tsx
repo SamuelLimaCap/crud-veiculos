@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../hooks/useAuth";
-import { findAncestor } from "typescript";
-import { useState } from "react";
+import './index.css'
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function Signup() {
         try {
             setIsLoading(true)
             await signUp({
-                name: signUpForm.fullname,
+                fullname: signUpForm.fullname,
                 email: signUpForm.email,
                 password: signUpForm.password,
             })
@@ -35,13 +35,13 @@ export default function Signup() {
     }
 
     return (
-        <div className="container">
+        <div className="container-signup">
             <div className="row">
                 <div className="col">
                     Aqui vai um texto bacana
                 </div>
                 <div className="col">
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit)} className="form-signup">
                         <div className="mb-3">
                             <label htmlFor="full-name">Nome completo</label>
                             <input type="text" id="full-name" placeholder="Digite seu nome completo"
@@ -49,7 +49,7 @@ export default function Signup() {
                                 className="form-control"
                             />
 
-                            {errors.username && (<span className="error">
+                            {errors.username && (<span className="error-input">
                                 {errors.username.message}
                             </span>)}
                         </div>
@@ -67,7 +67,7 @@ export default function Signup() {
                                 className="form-control"
                             />
 
-                            {errors.email && (<span className="error">
+                            {errors.email && (<span className="error-input">
                                 {errors.email.message}
                             </span>)}
                         </div>
@@ -90,7 +90,7 @@ export default function Signup() {
                                 })}
                             />
                             {errors.password && (
-                                <span className="error">
+                                <span className="error-input">
                                     {errors.password.message}
                                 </span>
                             )}
@@ -114,7 +114,7 @@ export default function Signup() {
                                 })}
                             />
                             {errors.confirmPassword && (
-                                <span className="error">
+                                <span className="error-input">
                                     {errors.confirmPassword.message}
                                 </span>
                             )}

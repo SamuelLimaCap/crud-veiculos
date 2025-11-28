@@ -11,7 +11,6 @@ import com.support.compracarros.repositories.PedidoCompraRepository;
 import com.support.compracarros.repositories.UserRepository;
 import com.support.compracarros.services.PedidoCompraService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
                 .findById(pedidoAnuncio.idAnuncio())
                 .orElseThrow(() -> new RuntimeException("Esse anuncio de compra não existe"));
 
-        if (anuncio.isDetelado()) throw new RuntimeException("Anuncio deletado");
+        if (anuncio.isDeletado()) throw new RuntimeException("Anuncio deletado");
         if (anuncio.getEstado().equals(AnuncioVeiculoState.ENCERRADO)) throw new RuntimeException("Anuncio encerrado");
 
         var shouldUseUserFullname = pedidoAnuncio.nome() == null;

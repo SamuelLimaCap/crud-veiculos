@@ -5,7 +5,6 @@ import com.support.compracarros.dto.handlers.Result;
 import com.support.compracarros.dto.req.CreateAnuncioVeiculoReq;
 import com.support.compracarros.dto.req.UpdateAnuncioVeiculoReq;
 import com.support.compracarros.dto.res.AnuncioVeiculoRes;
-import com.support.compracarros.dto.res.VeiculoResponse;
 import com.support.compracarros.entities.AnuncioVeiculo;
 import com.support.compracarros.entities.Veiculo;
 import com.support.compracarros.models.AnuncioVeiculoState;
@@ -15,7 +14,6 @@ import com.support.compracarros.repositories.UserRepository;
 import com.support.compracarros.repositories.VeiculoRepository;
 import com.support.compracarros.services.AnuncioVeiculoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -47,6 +45,7 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
                 .marca(anuncioVeiculoReq.marca())
                 .modelo(anuncioVeiculoReq.modelo())
                 .ano(anuncioVeiculoReq.ano())
+                .combustivel(anuncioVeiculoReq.combustivel())
                 .cor(anuncioVeiculoReq.cor())
                 .build();
 
@@ -105,14 +104,14 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
             throw new RuntimeException("Não pode deletar um anuncio em negociação. Desista da negociação primeiro e depois delete o anuncio");
         }
 
-        anuncio.setDetelado(true);
+        anuncio.setDeletado(true);
         anuncioVeiculoRepository.save(anuncio);
         return true;
     }
 
     @Override
     public PageSuccessResponse<List<AnuncioVeiculoRes>> getAll(int page, int size) {
-        var pageAnuncioList = anuncioVeiculoRepository.findAllWhereDeletadoIsFalse(PageRequest.of(page, size));
+        var pageAnuncioList = anuncioVeiculoRepository.findByDeletadoFalse(PageRequest.of(page, size));
 
         return Result.withPage("sucesso",
                 pageAnuncioList.getContent().stream().map(AnuncioVeiculoRes::of).collect(Collectors.toList()),

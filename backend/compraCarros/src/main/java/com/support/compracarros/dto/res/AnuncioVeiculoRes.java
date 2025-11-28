@@ -10,7 +10,7 @@ public record AnuncioVeiculoRes(
         Long userId,
         String placa,
         BigDecimal price,
-        String modeda,
+        String moeda,
         AnuncioVeiculoState estado,
         VeiculoResponse veiculo
 ) {
@@ -28,7 +28,8 @@ public record AnuncioVeiculoRes(
                         anuncioVeiculo.getVeiculo().getMarca(),
                         anuncioVeiculo.getVeiculo().getModelo(),
                         anuncioVeiculo.getVeiculo().getAno(),
-                        anuncioVeiculo.getVeiculo().getCor()
+                        anuncioVeiculo.getVeiculo().getCor(),
+                        anuncioVeiculo.getVeiculo().getCombustivel()
                 )
         );
     }

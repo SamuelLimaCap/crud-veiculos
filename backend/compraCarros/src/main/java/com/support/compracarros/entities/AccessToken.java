@@ -23,6 +23,7 @@ public class AccessToken {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    @Column(columnDefinition = "TEXT")
     private String token;
 
     @Column(nullable = false, updatable = false)

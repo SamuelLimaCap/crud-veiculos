@@ -6,6 +6,7 @@ public record CreateAnuncioVeiculoReq(
         String placa,
         String marca,
         String modelo,
+        String combustivel,
         Integer ano,
         String cor,
         BigDecimal price

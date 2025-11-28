@@ -25,7 +25,7 @@ public class PedidoCompra {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "anuncio_id", referencedColumnName = "id")
+    @JoinColumn(name = "anuncioVeiculo_id", referencedColumnName = "id")
     private AnuncioVeiculo anuncioVeiculo;
 
     @Column(nullable = false)

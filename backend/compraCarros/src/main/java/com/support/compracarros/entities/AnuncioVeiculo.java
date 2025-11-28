@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-@Entity
-@Table(name = "compra_veiculo")
+@Entity(name = "anuncioVeiculo")
+@Table(name = "anuncioVeiculos")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -41,12 +41,15 @@ public class AnuncioVeiculo {
     @Builder.Default
     private String moeda = "BRL";
 
+    @Column(nullable = false, precision = 8, scale = 3)
+    private BigDecimal kmRodados;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private AnuncioVeiculoState estado = AnuncioVeiculoState.ABERTO;
 
     @Builder.Default
-    private boolean detelado = false;
+    private boolean deletado = false;
 
     @CreationTimestamp
     private Instant createdAt;
@@ -54,6 +57,6 @@ public class AnuncioVeiculo {
     @UpdateTimestamp
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "anuncio_veiculo")
+    @OneToMany(mappedBy = "anuncioVeiculo")
     private List<PedidoCompra> pedidoCompras;
 }

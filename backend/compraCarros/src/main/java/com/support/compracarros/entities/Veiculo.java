@@ -31,6 +31,8 @@ public class Veiculo {
     @Column(nullable = false)
     private Integer ano;
 
+    private String combustivel;
+
     @Column(nullable = false)
     private String cor;
 
