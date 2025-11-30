@@ -137,7 +137,6 @@ A aplicação se conecta a um backend Spring Boot. Certifique-se de que o servid
 - ✅ Filtros avançados (preço, quilometragem, ano, marca, modelo)
 - ✅ Paginação com "Mostrar Mais"
 - ✅ Ordenação de resultados
-- ✅ Responsivo e mobile-friendly
 
 ## 🌐 URLs Importantes
 
