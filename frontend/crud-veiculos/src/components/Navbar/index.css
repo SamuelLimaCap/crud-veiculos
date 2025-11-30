@@ -1,0 +1,158 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 10px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 100;
+
+  /* background: #100931; */
+    background-color: #28203a;
+  color: var(--primary-color);
+  opacity: 0.9;
+}
+
+.logo {
+    padding: 0.5rem;
+    height: auto;
+}
+
+.logo > a img {
+  width: 70px;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+}
+
+nav li {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+  transition: 0.5s;
+  line-height: 74px;
+}
+
+nav li a {
+  height: 100%;
+  width: 100%;
+  min-width: 100%;
+  vertical-align: middle;
+  padding: 0px 20px;
+
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bolder;
+  font-size: 1.2rem;
+}
+
+nav li::after {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  content: " ";
+  background: var(--primary-color);
+  width: 100%;
+  height: 4px;
+  opacity: 0;
+
+  transition: 0.5s;
+  transition: background 0.5s;
+}
+
+nav li:hover::after {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+nav li:has(a:hover):hover,
+nav li:hover {
+  /* background: #ff870080; */
+  background: #a1344180;
+}
+
+.mobile-nav-toggle {
+  display: none;
+}
+
+.nav-children {
+  margin-top: 6em;
+}
+
+@media (max-width: 800px) {
+  header {
+    position: fixed;
+    width: 100vw;
+    top: 0;
+  }
+  nav {
+    z-index: 100000;
+    position: fixed;
+    top: 0;
+    left: 30vw;
+    right: 0;
+    background: steelblue;
+    flex-direction: column;
+    align-items: start;
+    padding: min(20vh, 10rem) 0em;
+
+    background: #10033180;
+    backdrop-filter: blur(1rem);
+
+    transform: translateX(100%);
+  }
+
+  nav li {
+    width: 100%;
+  }
+
+  nav li:focus::after {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  @supports (backdrop-filter: blur(1rem)) {
+    nav {
+      background: hsl(0, 0%, 0%, 0.75);
+      background: #100331bf;
+    }
+  }
+
+  nav li a {
+    padding: 0 2em;
+  }
+
+  .mobile-nav-toggle {
+    display: block;
+    position: absolute;
+    z-index: 999999;
+    background-image: url("../../assets/list.svg");
+    background-color: transparent;
+    color: white;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    color: white;
+    border: 0;
+    width: 2rem;
+    aspect-ratio: 1;
+    top: 2rem;
+    right: 2rem;
+  }
+
+  nav[data-visible="true"] {
+    visibility: visible;
+    transform: translateX(0%);
+    transition: transform 0.3s;
+  }
+
+  nav[data-visible="false"] {
+    visibility: hidden;
+  }
+}
