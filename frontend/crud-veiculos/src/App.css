@@ -40,3 +40,8 @@
 .read-the-docs {
   color: #888;
 }
+
+.formError {
+  color: crimson;
+  line-height: 0.8em;
+}

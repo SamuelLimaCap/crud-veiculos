@@ -5,11 +5,13 @@ import './App.css'
 import {BrowserRouter} from "react-router";
 import {AuthProvider} from "./contexts/AuthContext.tsx";
 import {AppRoutes} from "./routes/index.tsx";
+import { ToastContainer } from 'react-toastify';
 
 function App() {
 
   return (
       <BrowserRouter>
+        <ToastContainer />
           <AuthProvider>
               <AppRoutes />
           </AuthProvider>

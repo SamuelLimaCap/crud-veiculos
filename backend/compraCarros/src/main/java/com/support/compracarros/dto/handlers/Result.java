@@ -22,8 +22,8 @@ public interface Result<T> {
         return new SuccessResponse<>(successStatus, message, data);
     }
 
-    static <T> PageSuccessResponse<List<T>> withPage(String message, List<T> data, PageSuccessResponse.PageDetails page) {
-        return new PageSuccessResponse<List<T>>(successStatus, message, Collections.singletonList(data), page);
+    static <T> PageSuccessResponse<T> withPage(String message, T data, PageSuccessResponse.PageDetails page) {
+        return new PageSuccessResponse<T>(successStatus, message, data, page);
     }
 
     static <T> ErrorResponse err(String message) {

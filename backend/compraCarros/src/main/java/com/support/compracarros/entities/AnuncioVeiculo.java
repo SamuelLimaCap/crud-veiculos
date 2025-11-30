@@ -4,9 +4,11 @@ import com.support.compracarros.models.AnuncioVeiculoState;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.List;
 
@@ -44,9 +46,23 @@ public class AnuncioVeiculo {
     @Column(nullable = false, precision = 8, scale = 3)
     private BigDecimal kmRodados;
 
+    @JdbcTypeCode(Types.BINARY)
+    @Column(name = "image_data", columnDefinition = "bytea")
+    private byte[] imageData;
+
+    @Column(name = "image_name")
+    private String imageName;
+
+    @Column(name = "image_type")
+    private String imageType;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private AnuncioVeiculoState estado = AnuncioVeiculoState.ABERTO;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id_negociacao", referencedColumnName = "id")
+    private User userEmNegociacao;
 
     @Builder.Default
     private boolean deletado = false;

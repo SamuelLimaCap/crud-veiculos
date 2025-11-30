@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,7 +22,7 @@ public class VendasController {
     private final AnuncioVeiculoService anuncioVeiculoService;
 
     @PostMapping("anunciar")
-    public ResponseEntity<Result<AnuncioVeiculoRes>> anunciarVeiculo(@RequestBody CreateAnuncioVeiculoReq anuncioVeiculo) {
+    public ResponseEntity<Result<AnuncioVeiculoRes>> anunciarVeiculo(@ModelAttribute CreateAnuncioVeiculoReq anuncioVeiculo) throws IOException {
 
         var res = anuncioVeiculoService.anunciarVeiculo(anuncioVeiculo);
         return ResponseEntity
@@ -30,7 +31,7 @@ public class VendasController {
     }
 
     @PutMapping("alterar-infomações")
-    public ResponseEntity<Result<AnuncioVeiculoRes>> alterarInformacoes(@RequestBody UpdateAnuncioVeiculoReq anuncioVeiculoReq) {
+    public ResponseEntity<Result<AnuncioVeiculoRes>> alterarInformacoes(@ModelAttribute UpdateAnuncioVeiculoReq anuncioVeiculoReq) throws IOException {
         var anuncioViaPut = anuncioVeiculoReq.withType(UpdateAnuncioType.PUT);
         var res = anuncioVeiculoService.updateVeiculo(anuncioViaPut);
 
@@ -40,7 +41,7 @@ public class VendasController {
     }
 
     @PatchMapping
-    public ResponseEntity<Result<AnuncioVeiculoRes>> aletarInformacoes(@RequestBody UpdateAnuncioVeiculoReq anuncioVeiculoReq) {
+    public ResponseEntity<Result<AnuncioVeiculoRes>> alterarInformacoesPatch(@ModelAttribute UpdateAnuncioVeiculoReq anuncioVeiculoReq) throws IOException {
         var anuncioViaPatch = anuncioVeiculoReq.withType(UpdateAnuncioType.PATCH);
         var res = anuncioVeiculoService.updateVeiculo(anuncioViaPatch);
 
@@ -67,6 +68,20 @@ public class VendasController {
                                      ) {
         var res = anuncioVeiculoService.getAll(page, size);
         return ResponseEntity.status(HttpStatus.OK).body(res);
+
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Result<AnuncioVeiculoRes>> getById(@PathVariable("id") Long anuncioId) {
+        var res = anuncioVeiculoService.findById(anuncioId);
+        return ResponseEntity.ok(Result.with("anuncio retornado com sucesso!", res));
+    }
+
+    @GetMapping("/getByCreatedUser/{idUser}")
+    public ResponseEntity<Result<List<AnuncioVeiculoRes>>> getByUserCreatedId(@PathVariable("idUser") Long idUser) {
+        var res = anuncioVeiculoService.findByCreatedUserId(idUser);
+
+        return ResponseEntity.ok(Result.with("anuncios retornado com sucesso!", res));
 
     }
 }

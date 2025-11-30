@@ -1,6 +1,7 @@
 package com.support.compracarros.dto.res;
 
 import com.support.compracarros.entities.PedidoCompra;
+import com.support.compracarros.models.AnuncioVeiculoState;
 
 public record PedidoAnuncioRes(
         Long id,
@@ -9,7 +10,9 @@ public record PedidoAnuncioRes(
         String email,
         String telefone,
         String mensagem,
-        Long anuncioVeiculoId
+        Long anuncioVeiculoId,
+        AnuncioVeiculoState estadoDoAnuncio,
+        boolean disabled
 ) {
     public static PedidoAnuncioRes of(PedidoCompra pd) {
         return new PedidoAnuncioRes(
@@ -19,7 +22,9 @@ public record PedidoAnuncioRes(
                 pd.getUserEmail(),
                 pd.getTelephone(),
                 pd.getMessage(),
-                pd.getAnuncioVeiculo().getId()
+                pd.getAnuncioVeiculo().getId(),
+                pd.getAnuncioVeiculo().getEstado(),
+                pd.isDisabled()
         );
     }
 }

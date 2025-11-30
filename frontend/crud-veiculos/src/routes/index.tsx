@@ -7,6 +7,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import Lista from "../pages/Carros/Lista";
 import AnuncioByID from "../pages/Carros/anuncioId";
 import Anunciar from "../pages/Carros/Anunciar/Anunciar";
+import Perfil from "../pages/Perfil";
+import EditarAnuncio from "../pages/Carros/Editar";
 
 export function AppRoutes() {
     return (
@@ -39,7 +41,7 @@ export function AppRoutes() {
                 } />
 
                 <Route 
-                path="/anuncio/{id}"
+                path="/anuncio/:id"
                 element={
                     <ProtectedRoute permission={"CLIENT"}>
                         <AnuncioByID id="1" />
@@ -52,6 +54,23 @@ export function AppRoutes() {
                 element={
                     <ProtectedRoute permission={"CLIENT"}>
                         <Anunciar />
+                    </ProtectedRoute>
+                }
+                />
+
+                <Route 
+                path="/anuncio/editar/:id"
+                element={
+                    <ProtectedRoute permission={"CLIENT"}>
+                        <EditarAnuncio />
+                    </ProtectedRoute>
+                }
+                />
+                <Route 
+                path="/perfil"
+                element={
+                    <ProtectedRoute permission={"CLIENT"}>
+                        <Perfil />
                     </ProtectedRoute>
                 }
                 />

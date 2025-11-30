@@ -120,6 +120,7 @@ public class UserServiceImpl implements UserService {
         return new LoginResponse(
                 accessTokenString, refreshTokenEntity.getId().toString(),
                 new UserResponse(
+                        user.getId(),
                         user.getUsername(),
                         user.getEmail(),
                         user.getPermissions().stream().map(UserPermission::getPermission).toList()

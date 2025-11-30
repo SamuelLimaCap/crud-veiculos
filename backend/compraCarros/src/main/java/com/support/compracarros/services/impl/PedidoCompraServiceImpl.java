@@ -1,7 +1,7 @@
 package com.support.compracarros.services.impl;
 
-import com.support.compracarros.dto.handlers.PageSuccessResponse;
 import com.support.compracarros.dto.handlers.Result;
+import com.support.compracarros.dto.handlers.SuccessResponse;
 import com.support.compracarros.dto.req.PedidoAnuncioReq;
 import com.support.compracarros.dto.res.PedidoAnuncioRes;
 import com.support.compracarros.entities.PedidoCompra;
@@ -11,7 +11,6 @@ import com.support.compracarros.repositories.PedidoCompraRepository;
 import com.support.compracarros.repositories.UserRepository;
 import com.support.compracarros.services.PedidoCompraService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +42,9 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         pedidoCompraRepository.findByUser_IdAndAnuncioVeiculo_Id(user.getId(), pedidoAnuncio.idAnuncio())
-                .orElseThrow(() -> new RuntimeException("Usuário ja iniciou um pedido neste anuncio. Cancele o outro pedido pra realizar um novo"));
+                .ifPresent((data) -> {
+                    throw new RuntimeException("Usuário ja iniciou um pedido neste anuncio. Cancele o outro pedido pra realizar um novo");
+                });
 
         var pedidoCompra = PedidoCompra.builder()
                 .user(userRepository.getReferenceByEmail(email))
@@ -60,20 +61,40 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
     }
 
     @Override
-    public PageSuccessResponse<List<PedidoAnuncioRes>> getAll(int size, int page) {
+    public SuccessResponse<List<PedidoAnuncioRes>> getAll() {
 
-        var pedidoCompraPage = pedidoCompraRepository.findAll(PageRequest.of(page, size));
+        var email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return Result.withPage(
+        var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        var pedidoCompraPage = pedidoCompraRepository.findAllByDisabledFalseAndUser_Id(user.getId());
+
+        return Result.with(
                 "Retornado com sucesso!",
-                pedidoCompraPage.getContent().stream().map(PedidoAnuncioRes::of).toList(),
-                new PageSuccessResponse.PageDetails(
-                        pedidoCompraPage.getNumber(),
-                        pedidoCompraPage.getSize(),
-                        pedidoCompraPage.getTotalElements(),
-                        pedidoCompraPage.getTotalPages()
-                )
+                pedidoCompraPage.stream().map(PedidoAnuncioRes::of).toList()
         );
 
+    }
+
+    @Override
+    public List<PedidoAnuncioRes> getAllByAnuncio(Long id) {
+        return pedidoCompraRepository.findAllByDisabledFalseAndAnuncioVeiculo_Id(id).stream().map(PedidoAnuncioRes::of).toList();
+    }
+
+    @Override
+    public void desistirDaCompra(Long id) {
+
+        var email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+
+        var pedidoCompra = pedidoCompraRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido de compra não encontrado com esse id"));
+
+        if (pedidoCompra.isDisabled()) throw new RuntimeException("Pedido de compra já foi invalidado");
+
+        if (!user.getId().equals(pedidoCompra.getUser().getId())) throw new RuntimeException("Você não pode deletar um pedido de outra pessoa");
+
+        pedidoCompra.setDisabled(true);
+        pedidoCompraRepository.save(pedidoCompra);
     }
 }

@@ -5,6 +5,7 @@ import com.support.compracarros.models.UserPermissionEnum;
 import java.util.List;
 
 public record UserResponse(
+        Long idUser,
         String fullName,
         String email,
         List<UserPermissionEnum> permissions

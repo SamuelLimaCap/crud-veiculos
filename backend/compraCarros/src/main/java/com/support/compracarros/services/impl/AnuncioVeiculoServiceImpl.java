@@ -18,7 +18,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,10 +33,10 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
 
 
     @Override
-    public AnuncioVeiculoRes anunciarVeiculo(CreateAnuncioVeiculoReq anuncioVeiculoReq) {
+    public AnuncioVeiculoRes anunciarVeiculo(CreateAnuncioVeiculoReq anuncioVeiculoReq) throws IOException {
 
         System.out.println(anuncioVeiculoReq);
-        if (anuncioVeiculoRepository.existsByPlaca(anuncioVeiculoReq.placa())) {
+        if (anuncioVeiculoRepository.existsByPlacaAndDeletadoFalse(anuncioVeiculoReq.getPlaca())) {
             throw new RuntimeException("Essa placa do carro já está cadastrada em 1 anuncio de compra");
         }
 
@@ -42,34 +44,42 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
         var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
 
         var veiculo = Veiculo.builder()
-                .marca(anuncioVeiculoReq.marca())
-                .modelo(anuncioVeiculoReq.modelo())
-                .ano(anuncioVeiculoReq.ano())
-                .combustivel(anuncioVeiculoReq.combustivel())
-                .cor(anuncioVeiculoReq.cor())
+                .marca(anuncioVeiculoReq.getMarca())
+                .modelo(anuncioVeiculoReq.getModelo())
+                .ano(anuncioVeiculoReq.getAno())
+                .combustivel(anuncioVeiculoReq.getCombustivel())
+                .cor(anuncioVeiculoReq.getCor())
                 .build();
 
         System.out.println(veiculo);
 
         var veiculoEntity = veiculoRepository.save(veiculo);
-        var anuncioVeiculo = AnuncioVeiculo.builder()
+        var anuncioVeiculoBuilder = AnuncioVeiculo.builder()
                 .user(user)
                 .veiculo(veiculoEntity)
-                .placa(anuncioVeiculoReq.placa())
-                .price(anuncioVeiculoReq.price())
-                .estado(AnuncioVeiculoState.ABERTO)
-                .build();
+                .placa(anuncioVeiculoReq.getPlaca())
+                .price(anuncioVeiculoReq.getPrice())
+                .kmRodados(anuncioVeiculoReq.getKmRodados())
+                .estado(AnuncioVeiculoState.ABERTO);
 
+        if (anuncioVeiculoReq.getImage() != null) {
+
+            anuncioVeiculoBuilder.imageName(anuncioVeiculoReq.getImage().getOriginalFilename())
+                    .imageType(anuncioVeiculoReq.getImage().getContentType())
+                    .imageData(anuncioVeiculoReq.getImage().getBytes());
+        }
+
+        var anuncioVeiculo = anuncioVeiculoBuilder.build();
+        System.out.println(anuncioVeiculo);
         anuncioVeiculoRepository.save(anuncioVeiculo);
-
 
         return AnuncioVeiculoRes.of(anuncioVeiculo);
     }
 
     @Override
-    public AnuncioVeiculoRes updateVeiculo(UpdateAnuncioVeiculoReq anuncioVeiculoReq) {
+    public AnuncioVeiculoRes updateVeiculo(UpdateAnuncioVeiculoReq anuncioVeiculoReq) throws IOException {
         AnuncioVeiculo newAnuncioVeiculo;
-        if (anuncioVeiculoReq.type().equals(UpdateAnuncioType.PUT)) {
+        if (anuncioVeiculoReq.getType().equals(UpdateAnuncioType.PUT)) {
             newAnuncioVeiculo = updateVeiculoViaPut(anuncioVeiculoReq);
         } else {
             newAnuncioVeiculo = updateVeiculoViaPatch(anuncioVeiculoReq);
@@ -81,14 +91,17 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
     }
 
     @Override
-    public boolean mudarEstadoAnuncio(AnuncioVeiculoState estado, Long anuncioId) {
+    public boolean mudarEstadoAnuncio(AnuncioVeiculoState estado, Long anuncioId, Optional<Long> usuarioIdEmNegociacao) {
         var anuncio = anuncioVeiculoRepository.findById(anuncioId).orElseThrow(() -> new IllegalArgumentException("Id invalido"));
 
         if (anuncio.getEstado().equals(AnuncioVeiculoState.ENCERRADO)) {
             throw new RuntimeException("Não pode alterar o estado de um anuncio encerrado");
         }
 
+        var userEmNegociacao = userRepository.findById(usuarioIdEmNegociacao.get()).orElseThrow(() -> new IllegalArgumentException("Id invalido"));
+
         anuncio.setEstado(estado);
+        anuncio.setUserEmNegociacao(userEmNegociacao);
         anuncioVeiculoRepository.save(anuncio);
         return true;
     }
@@ -100,8 +113,6 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
 
         if (estadoAnuncio.equals(AnuncioVeiculoState.ENCERRADO)) {
             throw new RuntimeException("Não pode deletar um anuncio encerrado ou em negociação");
-        } else if (estadoAnuncio.equals(AnuncioVeiculoState.EM_NEGOCIACAO)) {
-            throw new RuntimeException("Não pode deletar um anuncio em negociação. Desista da negociação primeiro e depois delete o anuncio");
         }
 
         anuncio.setDeletado(true);
@@ -128,44 +139,60 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
         return  AnuncioVeiculoRes.of(anuncio);
     }
 
+    @Override
+    public List<AnuncioVeiculoRes> findByCreatedUserId(Long idUser) {
+        System.out.println(idUser);
+        return anuncioVeiculoRepository.findByUser_IdAndDeletadoFalse(idUser).stream().map(AnuncioVeiculoRes::of).collect(Collectors.toList());
+    }
+
     private AnuncioVeiculo updateVeiculoViaPut(UpdateAnuncioVeiculoReq anuncioVeiculoReq) {
         System.out.println("entrou aqui");
-        var anuncio = anuncioVeiculoRepository.findById(anuncioVeiculoReq.id()).orElseThrow(() -> new RuntimeException("Anuncio nao encontrado"));
+        var anuncio = anuncioVeiculoRepository.findById(anuncioVeiculoReq.getId()).orElseThrow(() -> new RuntimeException("Anuncio nao encontrado"));
 
-        anuncio.setPlaca(anuncioVeiculoReq.placa());
-        anuncio.setPrice(anuncioVeiculoReq.price());
-        anuncio.setEstado(anuncioVeiculoReq.estado());
+        anuncio.setPlaca(anuncioVeiculoReq.getPlaca());
+        anuncio.setPrice(anuncioVeiculoReq.getPrice());
+        anuncio.setEstado(anuncioVeiculoReq.getEstado());
 
         var veiculo = anuncio.getVeiculo();
-        veiculo.setMarca(anuncioVeiculoReq.marca());
-        veiculo.setModelo(anuncioVeiculoReq.modelo());
-        veiculo.setAno(anuncioVeiculoReq.ano());
-        veiculo.setCor(anuncioVeiculoReq.cor());
+        veiculo.setMarca(anuncioVeiculoReq.getMarca());
+        veiculo.setModelo(anuncioVeiculoReq.getModelo());
+        veiculo.setAno(anuncioVeiculoReq.getAno());
+        veiculo.setCor(anuncioVeiculoReq.getCor());
 
         anuncio.setVeiculo(veiculo);
 
         return anuncio;
     }
 
-    private AnuncioVeiculo updateVeiculoViaPatch(UpdateAnuncioVeiculoReq anuncioVeiculoReq) {
-        var anuncio = anuncioVeiculoRepository.findById(anuncioVeiculoReq.id()).orElseThrow(() -> new RuntimeException("Anuncio nao encontrado"));
+    private AnuncioVeiculo updateVeiculoViaPatch(UpdateAnuncioVeiculoReq anuncioVeiculoReq) throws IOException {
+        var anuncio = anuncioVeiculoRepository.findById(anuncioVeiculoReq.getId()).orElseThrow(() -> new RuntimeException("Anuncio nao encontrado"));
 
-        if (anuncioVeiculoReq.placa() != null)
-            anuncio.setPlaca(anuncioVeiculoReq.placa());
-        if (anuncioVeiculoReq.price() != null)
-            anuncio.setPrice(anuncioVeiculoReq.price());
-        if (anuncioVeiculoReq.estado() != null)
-            anuncio.setEstado(anuncioVeiculoReq.estado());
+        if (anuncioVeiculoReq.getPlaca() != null && !anuncioVeiculoReq.getPlaca().isBlank()) {
+            if (anuncioVeiculoRepository.existsByPlacaAndDeletadoFalse(anuncioVeiculoReq.getPlaca())) {
+                throw new IllegalArgumentException("Placa já cadastrada em outro anuncio");
+            }
+            anuncio.setPlaca(anuncioVeiculoReq.getPlaca());
+        }
+        if (anuncioVeiculoReq.getPrice() != null)
+            anuncio.setPrice(anuncioVeiculoReq.getPrice());
+        if (anuncioVeiculoReq.getEstado() != null)
+            anuncio.setEstado(anuncioVeiculoReq.getEstado());
+        if (anuncioVeiculoReq.getImage() != null) {
+            var imageReq =  anuncioVeiculoReq.getImage();
+            anuncio.setImageName(imageReq.getName());
+            anuncio.setImageType(imageReq.getContentType());
+            anuncio.setImageData(imageReq.getBytes());
+        }
 
         var veiculo = anuncio.getVeiculo();
-        if (anuncioVeiculoReq.marca() != null)
-            veiculo.setMarca(anuncioVeiculoReq.marca());
-        if (anuncioVeiculoReq.modelo() != null)
-            veiculo.setModelo(anuncioVeiculoReq.modelo());
-        if (anuncioVeiculoReq.ano() != null)
-            veiculo.setAno(anuncioVeiculoReq.ano());
-        if (anuncioVeiculoReq.cor() != null)
-            veiculo.setCor(anuncioVeiculoReq.cor());
+        if (anuncioVeiculoReq.getMarca() != null)
+            veiculo.setMarca(anuncioVeiculoReq.getMarca());
+        if (anuncioVeiculoReq.getModelo() != null)
+            veiculo.setModelo(anuncioVeiculoReq.getModelo());
+        if (anuncioVeiculoReq.getAno() != null)
+            veiculo.setAno(anuncioVeiculoReq.getAno());
+        if (anuncioVeiculoReq.getCor() != null && !anuncioVeiculoReq.getCor().isBlank())
+            veiculo.setCor(anuncioVeiculoReq.getCor());
 
         return anuncio;
     }

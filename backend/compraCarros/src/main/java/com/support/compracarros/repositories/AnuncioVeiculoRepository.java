@@ -6,11 +6,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AnuncioVeiculoRepository extends JpaRepository<AnuncioVeiculo, Long> {
 
-     boolean existsByPlaca(String placa);
+     boolean existsByPlacaAndDeletadoFalse(String placa);
 
      Page<AnuncioVeiculo> findByDeletadoFalse(Pageable pageable);
+
+    List<AnuncioVeiculo> findByUser_IdAndDeletadoFalse(Long userId);
 
 }

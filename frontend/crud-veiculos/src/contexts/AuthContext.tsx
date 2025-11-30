@@ -20,6 +20,7 @@ interface SignUpProps {
 }
 
 interface User {
+    idUser: String,
     fullname: string,
     email: string,
     permissions: string[]
@@ -70,6 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         const userFromLocalStorage = {
+            "idUser": localStorage.getItem("idUser") ?? "none",
             "fullname": localStorage.getItem("username") ?? "none",
             "email": localStorage.getItem("email") ?? "none",
             "permissions": JSON.parse(localStorage.getItem("permissions") ?? "none"),
@@ -112,6 +114,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             localStorage.setItem("refreshToken", dataObjectResponse.content.refreshToken)
             if (dataObjectResponse.content.userDetails) {
                 var user = dataObjectResponse.content.userDetails
+                localStorage.setItem("idUser", user.idUser)
                 localStorage.setItem("username", user.fullName)
                 localStorage.setItem("email", user.email)
                 localStorage.setItem("permissions", JSON.stringify(user.permissions))

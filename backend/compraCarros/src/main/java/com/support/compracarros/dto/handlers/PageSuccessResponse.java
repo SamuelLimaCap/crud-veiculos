@@ -5,7 +5,7 @@ import java.util.List;
 public record PageSuccessResponse<T>(
         String status,
         String message,
-        List<T> content,
+        T content,
         PageDetails pageInfo
 ) implements Result<T> {
     public record PageDetails(

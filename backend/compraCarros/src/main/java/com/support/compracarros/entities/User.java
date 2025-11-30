@@ -52,6 +52,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AnuncioVeiculo> anuncioVeiculos;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AnuncioVeiculo> anunciosVeiculosEmNegociacaoComEsseId;
+
     @OneToMany(mappedBy = "user", cascade = {
             CascadeType.MERGE,
             CascadeType.DETACH,

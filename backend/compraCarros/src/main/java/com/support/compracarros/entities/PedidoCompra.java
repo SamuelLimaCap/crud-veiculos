@@ -37,8 +37,7 @@ public class PedidoCompra {
     @Column(nullable = false)
     private String telephone;
 
-    @Column(nullable = false)
-    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
     @CreationTimestamp
