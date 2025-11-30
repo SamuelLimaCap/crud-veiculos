@@ -130,20 +130,6 @@ crud-veiculos/
 
 A aplicação se conecta a um backend Spring Boot. Certifique-se de que o servidor está rodando.
 
-## 🔍 Verificação de Código
-
-Para verificar problemas de linting:
-
-```bash
-npm run lint
-```
-
-Para corrigir automaticamente alguns problemas:
-
-```bash
-npm run lint -- --fix
-```
-
 ## 📱 Funcionalidades
 
 - ✅ Autenticação de usuários
