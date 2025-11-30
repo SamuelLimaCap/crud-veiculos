@@ -245,8 +245,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 Para dúvidas ou problemas:
 
-1. Consulte o [Backend README](./backend/README.md)
-2. Consulte o [Frontend README](./frontend/README.md)
+1. Consulte o [Backend README](./backend/compraCarros/README.md)
+2. Consulte o [Frontend README](./frontend/crud-veiculos/README.md)
 3. Acesse a documentação Swagger: http://localhost:8080/swagger-ui.html
 
 
