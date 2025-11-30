@@ -130,24 +130,6 @@ crud-veiculos/
 
 A aplicação se conecta a um backend Spring Boot. Certifique-se de que o servidor está rodando.
 
-### Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto (opcional):
-
-```env
-VITE_API_URL=http://localhost:8080
-```
-
-Atualize o arquivo `src/services/api.ts`:
-
-```typescript
-import axios from 'axios';
-
-export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
-});
-```
-
 ## 🔍 Verificação de Código
 
 Para verificar problemas de linting:
