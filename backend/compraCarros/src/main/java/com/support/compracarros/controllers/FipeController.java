@@ -4,6 +4,7 @@ import com.support.compracarros.dto.handlers.Result;
 import com.support.compracarros.dto.res.ModeloFipeRes;
 import com.support.compracarros.models.FipeResponseAno;
 import com.support.compracarros.services.FipeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,10 @@ import java.util.List;
 @RestController
 @RequestMapping("api/fipe")
 @RequiredArgsConstructor
+@Tag(
+        name = "FIPE",
+        description = "Endpoints para consultar dados de veículos da tabela FIPE (Fundação Instituto de Pesquisas Econômicas)"
+)
 public class FipeController {
 
     private final FipeService fipeService;

@@ -15,10 +15,14 @@ import com.support.compracarros.repositories.VeiculoRepository;
 import com.support.compracarros.services.AnuncioVeiculoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -143,6 +147,71 @@ public class AnuncioVeiculoServiceImpl implements AnuncioVeiculoService {
     public List<AnuncioVeiculoRes> findByCreatedUserId(Long idUser) {
         System.out.println(idUser);
         return anuncioVeiculoRepository.findByUser_IdAndDeletadoFalse(idUser).stream().map(AnuncioVeiculoRes::of).collect(Collectors.toList());
+    }
+
+    @Override
+    public PageSuccessResponse<List<AnuncioVeiculoRes>> filtrar(int page, int size, String ordenarPor, BigDecimal precoMin, BigDecimal precoMax, BigDecimal kmMin, BigDecimal kmMax, Integer anoMin, Integer anoMax, String marca, String modelo) {
+
+        Specification<AnuncioVeiculo> spec = (root, query, cb) -> cb.equal(root.get("deletado"), false);
+
+        spec = spec.and((root, query, cb) -> cb.equal(root.get("deletado"), false));
+
+        if (precoMin != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("price"), precoMin));
+        }
+        if (precoMax != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("price"), precoMax));
+        }
+
+        if (kmMin != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("kmRodados"), kmMin));
+        }
+        if (kmMax != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("kmRodados"), kmMax));
+        }
+
+        if (anoMin != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("veiculo").get("ano"), anoMin));
+        }
+        if (anoMax != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("veiculo").get("ano"), anoMax));
+        }
+
+        if (marca != null && !marca.isBlank()) {
+            spec = spec.and((root, query, cb) -> cb.like(
+                    cb.lower(root.get("veiculo").get("marca")),
+                    "%" + marca.toLowerCase() + "%"
+            ));
+        }
+
+        if (modelo != null && !modelo.isBlank()) {
+            spec = spec.and((root, query, cb) -> cb.like(
+                    cb.lower(root.get("veiculo").get("modelo")),
+                    "%" + modelo.toLowerCase() + "%"
+            ));
+        }
+
+        Sort sort = Sort.by("createdAt").descending();
+
+        if (ordenarPor != null) {
+            sort = switch (ordenarPor) {
+                case "menor-preco" -> Sort.by("price").ascending();
+                case "maior-preco" -> Sort.by("price").descending();
+                case "menor-km" -> Sort.by("kmRodados").ascending();
+                case "maior-km" -> Sort.by("kmRodados").descending();
+                case "menor-ano" -> Sort.by("veiculo.ano").ascending();
+                case "maior-ano" -> Sort.by("veiculo.ano").descending();
+                default -> Sort.by("createdAt").descending();
+            };
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        var pageAnuncioList = anuncioVeiculoRepository.findAll(spec, pageable);
+
+        return Result.withPage("sucesso",
+                pageAnuncioList.getContent().stream().map(AnuncioVeiculoRes::of).collect(Collectors.toList()),
+                new PageSuccessResponse.PageDetails(page, size, pageAnuncioList.getTotalElements(), pageAnuncioList.getTotalPages())
+        );
     }
 
     private AnuncioVeiculo updateVeiculoViaPut(UpdateAnuncioVeiculoReq anuncioVeiculoReq) {

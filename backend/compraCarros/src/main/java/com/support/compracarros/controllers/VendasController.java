@@ -4,19 +4,27 @@ import com.support.compracarros.dto.handlers.Result;
 import com.support.compracarros.dto.req.CreateAnuncioVeiculoReq;
 import com.support.compracarros.dto.req.UpdateAnuncioVeiculoReq;
 import com.support.compracarros.dto.res.AnuncioVeiculoRes;
+import com.support.compracarros.models.AnuncioVeiculoState;
 import com.support.compracarros.models.UpdateAnuncioType;
 import com.support.compracarros.services.AnuncioVeiculoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/vendas")
 @RequiredArgsConstructor
+@Tag(
+        name = "Anuncios",
+        description = "Endpoints para manipular e consultar os anuncios dos veiculos"
+)
 public class VendasController {
 
     private final AnuncioVeiculoService anuncioVeiculoService;
@@ -49,6 +57,14 @@ public class VendasController {
                 .status(HttpStatus.OK)
                 .body(Result.with("Anuncio atualizado com sucesso!", res));
     }
+
+    @PatchMapping("{id}/cliente/{clienteId}")
+    public ResponseEntity<Result<Void>> FinalizarAnuncioComCliente(@PathVariable Integer id, @PathVariable Integer clienteId) throws IOException {
+        anuncioVeiculoService.mudarEstadoAnuncio(AnuncioVeiculoState.ENCERRADO, Long.valueOf(id), Optional.of(Long.valueOf(clienteId)))   ;
+
+        return ResponseEntity.ok(Result.with("Anuncio finalizado com sucesso!", null));
+    }
+
 
     @DeleteMapping("invalidar-anuncio/{id}")
     public ResponseEntity<Result<Void>> invalidarAnuncio(@PathVariable("id") Long anuncioId) {
@@ -83,5 +99,23 @@ public class VendasController {
 
         return ResponseEntity.ok(Result.with("anuncios retornado com sucesso!", res));
 
+    }
+
+    @GetMapping("/filtrar")
+    public ResponseEntity<?> filtrar(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "ordenarPor", required = false) String ordenarPor,
+            @RequestParam(value = "precoMin", required = false) BigDecimal precoMin,
+            @RequestParam(value = "precoMax", required = false) BigDecimal precoMax,
+            @RequestParam(value = "kmMin", required = false) BigDecimal kmMin,
+            @RequestParam(value = "kmMax", required = false) BigDecimal kmMax,
+            @RequestParam(value = "anoMin", required = false) Integer anoMin,
+            @RequestParam(value = "anoMax", required = false) Integer anoMax,
+            @RequestParam(value = "marca", required = false) String marca,
+            @RequestParam(value = "modelo", required = false) String modelo) {
+
+        return ResponseEntity.ok(anuncioVeiculoService.filtrar(page, size, ordenarPor, precoMin, precoMax,
+                kmMin, kmMax, anoMin, anoMax, marca, modelo));
     }
 }

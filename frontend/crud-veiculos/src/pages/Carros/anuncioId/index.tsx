@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router";
 import { API } from "../../../services/api";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 interface AnuncioByIdProps {
     id: String,
@@ -54,14 +55,17 @@ export default function AnuncioByID({ }: AnuncioByIdProps) {
             "telefone": data.telefone,
             "mensagem": data.mensagem
         }).then(res => {
-            console.log(res.data.content)
+            toast.success("mensagem enviada!")
             navigate("/home")
         }
         )
     }
 
-    function onFinalizarComCliente(idCliente) {
-
+    function onFinalizarComCliente(idCliente: string) {
+        API.patch(`/api/vendas/${id}/cliente/${idCliente}`).then(res => {
+            toast.success("Anuncio finalizado com esse cliente")
+            navigate("/home")
+        })
 
     }
 
@@ -123,76 +127,80 @@ export default function AnuncioByID({ }: AnuncioByIdProps) {
                     </div>
                 </div>
                 {
-                    (anuncio?.userId != user?.idUser) ?
-                        (
+                    (anuncio?.estado == "ENCERRADO") ? (
+                        <div className="col-2">
+                            <h2>Anuncio encerrado</h2>
+                        </div>
+                    ) :
+                        (anuncio?.userId != user?.idUser) ?
+                            (
+                                <div className="col-2 contato">
+                                    <h2>{anuncio?.preco}</h2>
+                                    <form onSubmit={handleSubmit(onSubmit)}>
 
-                            <div className="col-2 contato">
-                                <h2>{anuncio?.preco}</h2>
-                                <form onSubmit={handleSubmit(onSubmit)}>
-
-                                    Fale com o vendedor:
-                                    <p>
-                                        <input type="text" placeholder="nome completo*"
-                                            {...register("nome", {
-                                                required: "Preencha seu nome"
-                                            })}
-                                        />
-                                    </p>
-                                    <p>
-                                        <input type="email" placeholder="email*"
-                                            {...register("email", {
-                                                required: "Preencha seu email"
-                                            })}
-                                        />
-                                    </p>
-                                    <p>
-                                        <input type="text" placeholder="telefone*"
-
-                                            {...register("telefone", {
-                                                required: "Preencha seu telefone"
-                                            })}
-                                        />
-                                    </p>
-                                    <p>
-                                        <input type="textarea" placeholder="mensagem*"
-
-                                            {...register("mensagem", {
-                                                required: "Mensagem obrigatória"
-                                            })}
-                                        />
-                                    </p>
-
-                                    <button type="submit">Enviar mensagem</button>
-                                </form>
-                            </div>
-                        ) : (
-                            <div className="col-2 pedidos-compra">
-                                <h4>Pedidos de compra</h4>
-                                <span className="text text-secondary">(Obs: Chame e converse com o cliente fora do sistema. Caso feche o negócio com ele, marque como finalizado selecionando a mensagem do cliente)</span>
-                                {pedidosCompra?.map(pedido => (
-                                    <div className="border border-solid rounded-3 p-2">
+                                        Fale com o vendedor:
                                         <p>
-                                            Email: {pedido.email}
+                                            <input type="text" placeholder="nome completo*"
+                                                {...register("nome", {
+                                                    required: "Preencha seu nome"
+                                                })}
+                                            />
                                         </p>
                                         <p>
-                                            Nome: {pedido.fullName}
+                                            <input type="email" placeholder="email*"
+                                                {...register("email", {
+                                                    required: "Preencha seu email"
+                                                })}
+                                            />
                                         </p>
                                         <p>
-                                            telefone: {pedido.telefone}
-                                        </p>
+                                            <input type="text" placeholder="telefone*"
 
+                                                {...register("telefone", {
+                                                    required: "Preencha seu telefone"
+                                                })}
+                                            />
+                                        </p>
                                         <p>
-                                            Mensagem: {pedido.mensagem}
+                                            <input type="textarea" placeholder="mensagem*"
+
+                                                {...register("mensagem", {
+                                                    required: "Mensagem obrigatória"
+                                                })}
+                                            />
                                         </p>
 
-                                        <div className="buttons ">
-                                            <button onClick={() => onFinalizarComCliente(pedido.userIdDoPedido)} className="btn btn-outline-success">Finalizei com esse cliente</button>
+                                        <button type="submit">Enviar mensagem</button>
+                                    </form>
+                                </div>
+                            ) : (
+                                <div className="col-2 pedidos-compra">
+                                    <h4>Pedidos de compra</h4>
+                                    <span className="text text-secondary">(Obs: Chame e converse com o cliente fora do sistema. Caso feche o negócio com ele, marque como finalizado selecionando a mensagem do cliente)</span>
+                                    {pedidosCompra?.map(pedido => (
+                                        <div className="border border-solid rounded-3 p-2">
+                                            <p>
+                                                Email: {pedido.email}
+                                            </p>
+                                            <p>
+                                                Nome: {pedido.fullName}
+                                            </p>
+                                            <p>
+                                                telefone: {pedido.telefone}
+                                            </p>
+
+                                            <p>
+                                                Mensagem: {pedido.mensagem}
+                                            </p>
+
+                                            <div className="buttons ">
+                                                <button onClick={() => onFinalizarComCliente(pedido.userIdDoPedido)} className="btn btn-outline-success">Finalizei com esse cliente</button>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                ))}
-                            </div>
-                        )
+                                    ))}
+                                </div>
+                            )
                 }
             </div>
         </Layout>

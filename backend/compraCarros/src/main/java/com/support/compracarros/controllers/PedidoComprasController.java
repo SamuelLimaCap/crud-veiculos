@@ -5,6 +5,7 @@ import com.support.compracarros.dto.handlers.SuccessResponse;
 import com.support.compracarros.dto.req.PedidoAnuncioReq;
 import com.support.compracarros.dto.res.PedidoAnuncioRes;
 import com.support.compracarros.services.PedidoCompraService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("api/compras")
 @RequiredArgsConstructor
+@Tag(
+        name = "FIPE",
+        description = "Endpoints para consultar os pedidos de compras realizados no sistema"
+)
 public class PedidoComprasController {
 
     private final PedidoCompraService pedidoCompraService;

@@ -4,9 +4,13 @@ import { COLORS, MARCA_CARROS } from "../../../utils/constants";
 import Select, { StylesConfig } from "react-select";
 import { API } from "../../../services/api";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 
 export default function Anunciar() {
+
+    const navigate = useNavigate();
 
     const [marcas, setMarcas] = useState<any>([]);
     const [selectedMarca, setSelectedMarca] = useState<any>(null);
@@ -36,9 +40,10 @@ export default function Anunciar() {
         setSelectedAnoCombustivel(option);
     };
 
-    const onSubmit = useCallback(
-        async (content: any) => {
+    const onSubmit = 
+        (content: any) => {
             try {
+                console.log(selectedAnoCombustivel)
                 const anoCombustivel = selectedAnoCombustivel.label.split(" ");
                 console.log(anoCombustivel);
                 const data = {
@@ -70,7 +75,7 @@ export default function Anunciar() {
                     formData.append('image', data.image[0]);
                 }
 
-                const response = await API.post(
+                const response = API.post(
                     '/api/vendas/anunciar',
                     formData,
                     {
@@ -78,7 +83,10 @@ export default function Anunciar() {
                             'Content-Type': 'multipart/form-data',
                         },
                     }
-                );
+                ).then(res => {
+                    toast.success("Anuncio criado com sucesso!")
+                    navigate('/')
+                });
 
                 reset();
             } catch (error) {
@@ -86,8 +94,7 @@ export default function Anunciar() {
             } finally {
                 // setLoading(false)
             }
-        }, []
-    )
+        }
 
     useEffect(() => { //@TODO change on selectedOption
 

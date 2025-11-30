@@ -69,8 +69,7 @@ public class UserServiceImpl implements UserService {
         });
 
         var defaultPermissions = List.of(
-                permissionRepository.findByPermission(UserPermissionEnum.CLIENT),
-                permissionRepository.findByPermission(UserPermissionEnum.BUYER)
+                permissionRepository.findByPermission(UserPermissionEnum.CLIENT)
         );
 
         var newUser = User.builder()

@@ -53,4 +53,11 @@ public class Advice {
     public Result<Void> handleAPIAuthException(APIAuthException ex) {
         return Result.err(ex.getMessage());
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Result<Void> handleRuntimeException(RuntimeException ex) {
+        return Result.err(ex.getMessage());
+    }
 }

@@ -3,6 +3,8 @@ import { useCallback, useState } from "react";
 import './index.css'
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import logo from './../../../assets/logo-2.jpeg'
+import { toast } from "react-toastify";
 
 export default function Login() {
     const { signIn } = useAuth()
@@ -27,6 +29,7 @@ export default function Login() {
                     email: content.email,
                     password: content.password
                 })
+                toast.success("Logado com sucesso!")
             } catch (error) {
                 console.log(error)
             } finally {
@@ -54,7 +57,7 @@ export default function Login() {
         <div className={"container container-login"}>
             <div className={"row"}>
                 <div className={"col"}>
-                    Aqui vai estar o anuncio
+                    <img src={logo} />
                 </div>
                 <div className={"col"}>
 

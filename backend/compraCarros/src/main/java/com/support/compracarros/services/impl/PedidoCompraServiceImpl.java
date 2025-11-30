@@ -29,6 +29,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
 
         var email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+
         var anuncio = anuncioVeiculoRepository
                 .findById(pedidoAnuncio.idAnuncio())
                 .orElseThrow(() -> new RuntimeException("Esse anuncio de compra não existe"));
@@ -40,11 +41,15 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         var shouldUseUserEmail = pedidoAnuncio.email() == null;
 
         var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        if (user.getId().equals(anuncio.getUser().getId())) {
+            throw new RuntimeException("Você não pode solicitar uma compra do teu próprio anuncio!");
+        }
 
         pedidoCompraRepository.findByUser_IdAndAnuncioVeiculo_Id(user.getId(), pedidoAnuncio.idAnuncio())
                 .ifPresent((data) -> {
                     throw new RuntimeException("Usuário ja iniciou um pedido neste anuncio. Cancele o outro pedido pra realizar um novo");
                 });
+
 
         var pedidoCompra = PedidoCompra.builder()
                 .user(userRepository.getReferenceByEmail(email))

@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../hooks/useAuth";
+import logo from './../../../assets/logo-2.jpeg'
 import './index.css'
+import { toast } from "react-toastify";
 
 export default function Signup() {
     const navigate = useNavigate();
-    const {signUp } = useAuth();
+    const {signUp, } = useAuth();
     const [loading, setIsLoading] = useState(false);
 
     const {
@@ -16,7 +18,6 @@ export default function Signup() {
         reset,
         formState: { errors, isSubmitting }
     } = useForm();
-
     const password = watch("password");
 
     const onSubmit = async (signUpForm: any) => {
@@ -27,6 +28,7 @@ export default function Signup() {
                 email: signUpForm.email,
                 password: signUpForm.password,
             })
+            toast.success("Cadastrado com sucesso!")
         } catch (error) {
             console.log(error)
         } finally {
@@ -38,7 +40,7 @@ export default function Signup() {
         <div className="container-signup">
             <div className="row">
                 <div className="col">
-                    Aqui vai um texto bacana
+                    <img src={logo} />
                 </div>
                 <div className="col">
                     <form onSubmit={handleSubmit(onSubmit)} className="form-signup">
@@ -106,7 +108,7 @@ export default function Signup() {
                                 type="password"
                                 id="signup-confirm-password"
                                 placeholder="Repita sua senha"
-                                className="form-control"
+                                className="form-control d-center text-center"
                                 {...register("confirmPassword", {
                                     required: "Confirmação obrigatória",
                                     validate: (value) =>
@@ -120,7 +122,7 @@ export default function Signup() {
                             )}
                         </div>
 
-                        <div className="input-group">
+                        <div className="input-group d-flex justify-content-center">
                             <button
                                 type="submit"
                                 id="create-account-button"
@@ -131,7 +133,9 @@ export default function Signup() {
                             </button>
                         </div>
                     </form>
+
                 </div>
+                    <div>Ja tem uma conta? Clique aqui e <a href="#" onClick={() => navigate("/")}>logue-se </a></div>
             </div>
         </div>
     )

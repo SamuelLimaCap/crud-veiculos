@@ -4,6 +4,7 @@ import noContent from '../../assets/no-content.jpg'
 import './index.css'
 import { FC, useRef } from 'react';
 import { API } from '../../services/api';
+import { toast } from 'react-toastify';
 
 export default function Anuncio(props: any) {
     const navigate = useNavigate()
@@ -13,8 +14,11 @@ export default function Anuncio(props: any) {
     const anuncioRef = useRef(null);
 
     function deletarAnuncio(id: string) {
-        API.delete(`/api/vendas/invalidar-anuncio/${id}`).then(
-            anuncioRef.current.style.display = 'none'
+        API.delete(`/api/vendas/invalidar-anuncio/${id}`).then(res => {
+            anuncioRef.current.style.display = 'none';
+            toast.success("Anuncio deletado com sucesso!")
+            
+        }
         )
     }
 
